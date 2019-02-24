@@ -15,4 +15,5 @@ df_getter = make_df_getter(
     names=HEADER[:3],
     skiprows=1,
     usecols=[0, 1, 2],
+    chunksize=250_000,
 )

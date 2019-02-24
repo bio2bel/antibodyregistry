@@ -8,6 +8,8 @@ from bio2bel import AbstractManager
 from bio2bel.manager.flask_manager import FlaskMixin
 from bio2bel.manager.namespace_manager import BELNamespaceManagerMixin
 from pybel.manager.models import Namespace, NamespaceEntry
+from tqdm import tqdm
+
 from .constants import MODULE_NAME
 from .models import Antibody, Base
 from .parser import df_getter
@@ -39,9 +41,13 @@ class Manager(AbstractManager, BELNamespaceManagerMixin, FlaskMixin):
 
     def populate(self, url: Optional[str] = None) -> None:
         """Populate the Bio2BEL Antibody Registry database."""
-        df = df_getter(url=url)
-        df.to_sql(Antibody.__tablename__, con=self.engine, if_exists='append', index=False)
-        self.session.commit()
+        chunks = df_getter(url=url)
+        for df in tqdm(chunks):
+            df = df[df.name.notna()]
+            df = df[df.antibodyregistry_id.notna()]
+            df = df[df.vendor.notna()]
+            df.to_sql(Antibody.__tablename__, con=self.engine, if_exists='append', index=False)
+            self.session.commit()
 
     def get_antibody_by_antibodyregistry_id(self, antibodyregistry_id: str) -> Optional[Antibody]:
         """Get an antibody by its registry identifier, if it exists."""

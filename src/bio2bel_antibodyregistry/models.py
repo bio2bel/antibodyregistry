@@ -28,5 +28,5 @@ class Antibody(Base):
 
     id = Column(Integer, primary_key=True)
     antibodyregistry_id = Column(String(16), unique=True, nullable=False)
-    name = Column(String(255), nullable=False)
+    name = Column(String(1023), nullable=False)
     vendor = Column(String(255), nullable=False)
